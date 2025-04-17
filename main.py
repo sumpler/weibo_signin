@@ -22,15 +22,41 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 SIGN_URL = "https://api.weibo.cn/2/page/button"
-CARD_LIST_COOKIE_URL = os.getenv('CARD_LIST_COOKIE_URL')
-BARK_KEY = os.getenv('BARK_KEY')
 BARK_SERVER = os.getenv('BARK_SERVER', 'https://api.day.app')  # 设置默认值
+BARK_KEY = os.getenv('BARK_KEY')  # 全局 Bark Key
 
-if not CARD_LIST_COOKIE_URL:
-    raise ValueError("请在 .env 文件中设置 CARD_LIST_COOKIE_URL 环境变量")
+# 加载账号配置
+try:
+    weibo_accounts_str = os.getenv('WEIBO_ACCOUNTS')
+    if not weibo_accounts_str:
+        raise ValueError("请在 .env 文件中设置 WEIBO_ACCOUNTS 环境变量")
+    
+    # 移除可能存在的单引号或双引号
+    print(f"weibo_accounts_str: {weibo_accounts_str}")
+    WEIBO_ACCOUNTS = json.loads(weibo_accounts_str)
+    
+    if not isinstance(WEIBO_ACCOUNTS, list):
+        raise ValueError("WEIBO_ACCOUNTS 必须是一个数组")
+    
+    if not WEIBO_ACCOUNTS:
+        raise ValueError("WEIBO_ACCOUNTS 不能为空数组")
+        
+    # 验证每个账号的必要字段
+    for account in WEIBO_ACCOUNTS:
+        if not isinstance(account, dict):
+            raise ValueError("WEIBO_ACCOUNTS 中的每个项目必须是一个对象")
+        if 'name' not in account:
+            raise ValueError("每个账号必须包含 name 字段")
+        if 'card_list_cookie_url' not in account:
+            raise ValueError("每个账号必须包含 card_list_cookie_url 字段")
+            
+except json.JSONDecodeError as e:
+    raise ValueError(f"WEIBO_ACCOUNTS 环境变量格式错误，请确保是有效的 JSON 格式: {str(e)}")
+except Exception as e:
+    raise ValueError(f"配置错误: {str(e)}")
 
 if not BARK_KEY:
-    raise ValueError("请在 .env 文件中设置 BARK_KEY 环境变量")
+    logger.warning("未配置 BARK_KEY，将不会发送通知")
 
 def send_request(url, params, headers):
     response = requests.get(url, params=params, headers=headers)
@@ -48,8 +74,8 @@ def extract_params(url):
     return params_from_url
 
 def get_card_type_11(params, headers, since_id):
-    params['since_id'] = since_id  # 添加 since_id 到请求参数中
-    response = requests.request("GET", CARD_LIST_COOKIE_URL, headers=headers, data={})
+    params['since_id'] = since_id
+    response = requests.request("GET", params['card_list_cookie_url'], headers=headers, data={})
     data = response.json()
     if data is None:
         return []
@@ -106,6 +132,9 @@ def sign_in(headers, base_params, scheme, since_id):
     return data
 
 def send_bark(title, content):
+    if not BARK_KEY:
+        return
+    
     url = f"{BARK_SERVER}/{BARK_KEY}/{title}/{content}"
     try:
         response = requests.get(url)
@@ -114,32 +143,40 @@ def send_bark(title, content):
     except Exception as e:
         logger.error(f"Bark 通知发送异常: {str(e)}")
 
-headers = {
-  'Host': 'api.weibo.cn',
-  'Accept': '*/*',
-  'X-Sessionid': '6D340DD7-0F9C-4F09-9DCA-D0E36ABE5CCA',
-  'User-Agent': 'WeiboOverseas/6.7.1 (com.weibo.international; build:6.7.1.1; iOS 18.3.0) Alamofire/5.10.2',
-  'Accept-Language': 'zh-Hans-US;q=1.0, en-US;q=0.9, zh-Hant-US;q=0.8, fr-US;q=0.7, nl-US;q=0.6',
-  'Accept-Encoding': 'json',
-  'Connection': 'keep-alive'
-}
+def process_account(account):
+    account_name = account.get('name', '未命名账号')
+    card_list_cookie_url = account.get('card_list_cookie_url')
 
-if __name__ == "__main__":
-    weibo_my_cookie = CARD_LIST_COOKIE_URL
+    if not card_list_cookie_url:
+        logger.error(f"{account_name}: 未配置 card_list_cookie_url")
+        return
+
+    logger.info(f"开始处理账号: {account_name}")
+    
+    headers = {
+        'Host': 'api.weibo.cn',
+        'Accept': '*/*',
+        'X-Sessionid': '6D340DD7-0F9C-4F09-9DCA-D0E36ABE5CCA',
+        'User-Agent': 'WeiboOverseas/6.7.1 (com.weibo.international; build:6.7.1.1; iOS 18.3.0) Alamofire/5.10.2',
+        'Accept-Language': 'zh-Hans-US;q=1.0, en-US;q=0.9, zh-Hant-US;q=0.8, fr-US;q=0.7, nl-US;q=0.6',
+        'Accept-Encoding': 'json',
+        'Connection': 'keep-alive'
+    }
+
     since_id = 1
-    params = extract_params(weibo_my_cookie)
-    card_type_11_info = get_card_type_11(params, headers, since_id)  # 传递 since_id 到函数中
+    params = extract_params(card_list_cookie_url)
+    params['card_list_cookie_url'] = card_list_cookie_url
+    card_type_11_info = get_card_type_11(params, headers, since_id)
 
-    if not card_type_11_info:  # 如果没有数据，停止循环
-        logger.warning("没有获取到数据")
-        exit()
+    if not card_type_11_info:
+        logger.warning(f"{account_name}: 没有获取到数据")
+        return
 
     super_topic_list = "\n".join([f"    {info['title_sub']}" for info in card_type_11_info])
-    logger.info("超话列表：")
+    logger.info(f"{account_name} 超话列表：")
     logger.info("\n"+super_topic_list)
 
-    logger.info("================================")
-    logger.info("签到结果：")
+    logger.info(f"{account_name} 签到结果：")
     result_message = "\n"
     for info in card_type_11_info:
         if info['signin_status']:
@@ -152,5 +189,29 @@ if __name__ == "__main__":
                 state = '❌ 失败'
             result_message += f"    {info['title_sub']}超话：{state}\n"
             time.sleep(random.randint(5, 10))
+    
     logger.info(result_message)
-    send_bark("微博超话签到", result_message)
+    send_bark(f"{account_name}微博超话签到", result_message)
+    return result_message
+
+if __name__ == "__main__":
+    logger.info("开始执行微博超话签到任务")
+    logger.info(f"共有 {len(WEIBO_ACCOUNTS)} 个账号需要处理")
+    
+    all_results = []
+    for account in WEIBO_ACCOUNTS:
+        try:
+            result = process_account(account)
+            if result:
+                all_results.append(result)
+            time.sleep(random.randint(10, 20))  # 账号之间添加随机延迟
+        except Exception as e:
+            logger.error(f"处理账号 {account.get('name', '未命名账号')} 时发生错误: {str(e)}")
+            continue
+    
+    # 发送总结通知
+    if all_results:
+        summary = "\n=================\n".join(all_results)
+        send_bark("微博超话签到汇总", summary)
+    
+    logger.info("所有账号处理完成")
