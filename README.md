@@ -70,3 +70,8 @@
   ```bash
   podman ps -a
   ``` 
+
+- 查看定时任务日志：
+  ```bash
+  podman exec weibo-signin cat /var/log/cron.log
+  ```
