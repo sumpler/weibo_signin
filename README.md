@@ -6,7 +6,7 @@
 
 - 自动签到微博超话
 - 支持自定义签到时间
-- 支持 Bark 推送签到结果
+- 支持 [Bark](https://github.com/Finb/Bark) 推送签到结果
 - 基于容器运行，方便部署
 
 ## 使用方法
@@ -17,7 +17,7 @@
    ```
 
 2. 修改 `.env` 文件中的配置项：
-   - `CARD_LIST_COOKIE_URL`: 微博超话签到 URL
+   - `CARD_LIST_COOKIE_URL`: 微博超话签到 URL(使用微博轻享版进入超话列表自行抓包，类似 https://api.weibo.cn/2/cardlist?xxxxxxxxxxxx 这样的 url)
    - `CRON_SCHEDULE`: 定时任务时间（Cron 格式）
    - `BARK_KEY`: Bark 推送密钥
    - `BARK_SERVER`: Bark 服务器地址
