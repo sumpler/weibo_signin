@@ -43,16 +43,6 @@ docker build -t weibo-signin .
 docker run -d --name weibo-signin weibo-signin
 ```
 
-#### 使用 Podman
-
-```bash
-# 构建镜像
-podman build -t weibo-signin .
-
-# 运行容器
-podman run -d --name weibo-signin weibo-signin
-```
-
 ## 多账号配置示例
 
 ```bash
