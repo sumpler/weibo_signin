@@ -89,4 +89,8 @@ docker ps -a               # View all container statuses
 
 ## Issue Reporting
 
-If you encounter any issues during use, please feel free to submit an Issue. 
+If you encounter any issues during use, please feel free to submit an Issue.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE). 
