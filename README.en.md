@@ -84,7 +84,7 @@ docker ps -a               # View all container statuses
   - At least one of `BARK_KEY` or `SERVERCHAN_KEY` must be configured
   - If both are configured, notifications will be sent to both channels
   - Bark supports iOS device push notifications
-  - Server酱 supports multiple channel push notifications
+  - ServerChan supports multiple channel push notifications
 - The container will execute sign-in tasks according to the time set in `CRON_SCHEDULE`
 
 ## Issue Reporting
