@@ -29,7 +29,7 @@ Edit the `.env` file and configure the following required parameters:
 |-----------|-------------|---------|
 | `WEIBO_ACCOUNTS` | Account configuration (JSON format) | See example below |
 | `BARK_KEY` | Bark push key (optional, at least one of BARK_KEY or SERVERCHAN_KEY required) | `xxxxxxxx` |
-| `SERVERCHAN_KEY` | Server酱 push key (optional, at least one of BARK_KEY or SERVERCHAN_KEY required) | `xxxxxxxx` |
+| `SERVERCHAN_KEY` | ServerChan push key (optional, at least one of BARK_KEY or SERVERCHAN_KEY required) | `xxxxxxxx` |
 | `CRON_SCHEDULE` | Scheduled task time (Cron format) | `0 7 * * *` (7:00 AM daily) |
 | `TZ` | Timezone setting (optional) | `Asia/Shanghai` |
 
