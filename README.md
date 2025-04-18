@@ -1,88 +1,104 @@
 # 微博超话自动签到
 
-自动完成微博超话签到任务的容器应用。
+自动完成微博超话签到任务的容器应用。支持 Docker 和 Podman 部署。
 
 ## 功能特点
 
-- 自动签到微博超话
-- 支持多账号配置
-- 支持自定义签到时间
-- 支持 [Bark](https://github.com/Finb/Bark) 推送签到结果
-- 基于容器运行，方便部署
+- ✨ 自动签到微博超话
+- 👥 支持多账号配置
+- ⏰ 支持自定义签到时间
+- 📱 支持 [Bark](https://github.com/Finb/Bark) 推送签到结果
+- 🐳 支持 Docker/Podman 容器化部署
 
-## 使用方法
+## 快速开始
 
-1. 复制 `.env.example` 为 `.env` 并修改配置：
-   ```bash
-   cp .env.example .env
-   ```
+### 1. 配置文件准备
 
-2. 修改 `.env` 文件中的配置项：
-   - `WEIBO_ACCOUNTS`: JSON 格式的账号配置数组，每个账号包含：
-     - `name`: 账号名称（用于日志显示）
-     - `card_list_cookie_url`: 微博超话签到 URL（使用微博轻享版进入超话列表自行抓包，类似 https://api.weibo.cn/2/cardlist?xxxxxxxxxxxx 这样的 url）
-   - `BARK_KEY`: Bark 推送密钥（用于接收签到结果通知）
-   - `CRON_SCHEDULE`: 定时任务时间（Cron 格式，默认每天早上 7 点）
-   - `BARK_SERVER`: Bark 服务器地址（可选，默认为 https://api.day.app）
+复制配置文件模板：
+```bash
+cp .env.example .env
+```
 
-3. 构建容器镜像：
-   ```bash
-   podman build -t weibo-signin .
-   ```
+### 2. 修改配置
 
-4. 运行容器：
-   ```bash
-   podman run -d --name weibo-signin weibo-signin
-   ```
+编辑 `.env` 文件，配置以下必要参数：
 
-## 环境变量说明
+| 参数 | 说明 | 示例 |
+|------|------|------|
+| `WEIBO_ACCOUNTS` | 账号配置（JSON 格式） | 见下方示例 |
+| `BARK_KEY` | Bark 推送密钥（可选，与 SERVERCHAN_KEY 至少配置一个） | `xxxxxxxx` |
+| `SERVERCHAN_KEY` | Server酱推送密钥（可选，与 BARK_KEY 至少配置一个） | `xxxxxxxx` |
+| `CRON_SCHEDULE` | 定时任务时间（Cron 格式） | `0 7 * * *`（每天7点） |
+| `TZ` | 时区设置（可选） | `Asia/Shanghai` |
 
-- `WEIBO_ACCOUNTS`: JSON 格式的账号配置数组
-- `BARK_KEY`: Bark 推送密钥
-- `CRON_SCHEDULE`: Cron 定时配置（默认每天早上 7 点）
-- `BARK_SERVER`: Bark 服务器地址（默认：https://api.day.app）
-- `TZ`: 时区设置（默认：Asia/Shanghai）
+### 3. 运行容器
+
+#### 使用 Docker
+
+```bash
+# 构建镜像
+docker build -t weibo-signin .
+
+# 运行容器
+docker run -d --name weibo-signin weibo-signin
+```
+
+#### 使用 Podman
+
+```bash
+# 构建镜像
+podman build -t weibo-signin .
+
+# 运行容器
+podman run -d --name weibo-signin weibo-signin
+```
 
 ## 多账号配置示例
 
 ```bash
 # 注意：JSON 必须写在同一行
-WEIBO_ACCOUNTS='[{"name":"账号1","card_list_cookie_url":"https://api.weibo.cn/2/cardlist?xxx"},{"name":"账号2","card_list_cookie_url":"https://api.weibo.cn/2/cardlist?yyy"}]'
+WEIBO_ACCOUNTS='[
+  {"name":"账号1","card_list_cookie_url":"https://api.weibo.cn/2/cardlist?xxx"},
+  {"name":"账号2","card_list_cookie_url":"https://api.weibo.cn/2/cardlist?yyy"}
+]'
+```
+
+## 获取超话签到 URL
+
+1. 使用微博轻享版 App 登录账号
+2. 进入超话列表页面
+3. 使用抓包工具（如 Charles、Fiddler）抓取请求
+4. 找到类似 `https://api.weibo.cn/2/cardlist?xxxxxxxxxxxx` 的请求 URL
+
+## 常用命令参考
+
+### Docker 命令
+
+```bash
+# 查看容器日志
+docker logs weibo-signin
+
+# 查看定时任务日志
+docker exec weibo-signin cat /var/log/cron.log
+
+# 容器管理
+docker stop weibo-signin    # 停止容器
+docker start weibo-signin   # 启动容器
+docker rm weibo-signin     # 删除容器
+docker ps -a               # 查看所有容器状态
 ```
 
 ## 注意事项
 
-- 请确保 `.env` 文件中的配置格式正确，特别是 JSON 格式的账号配置必须写在同一行
-- Bark 通知将使用统一的推送密钥，所有账号的签到结果都会发送到同一个设备
-- 容器会根据 CRON_SCHEDULE 设置的时间定时执行所有账号的签到任务
-- 可以通过查看容器日志了解签到状态：
-  ```bash
-  podman logs weibo-signin
-  ```
+- 确保 `.env` 文件中的 JSON 格式配置正确且写在同一行
+- 推送通知配置说明：
+  - 需要配置 `BARK_KEY` 或 `SERVERCHAN_KEY` 中的至少一个
+  - 如果同时配置两个，两个渠道都会收到推送通知
+  - Bark 支持 iOS 设备推送
+  - Server酱支持多个渠道推送签到结果
+- 容器将按照 `CRON_SCHEDULE` 设置的时间定时执行签到任务
+- 建议定期查看容器日志以确保签到正常进行
 
-## 其他常用命令
+## 问题反馈
 
-- 停止容器：
-  ```bash
-  podman stop weibo-signin
-  ```
-
-- 启动已停止的容器：
-  ```bash
-  podman start weibo-signin
-  ```
-
-- 删除容器：
-  ```bash
-  podman rm weibo-signin
-  ```
-
-- 查看容器状态：
-  ```bash
-  podman ps -a
-  ```
-
-- 查看定时任务日志：
-  ```bash
-  podman exec weibo-signin cat /var/log/cron.log
-  ```
+如果在使用过程中遇到问题，欢迎提交 Issue 反馈。

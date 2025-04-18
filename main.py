@@ -6,6 +6,7 @@ from urllib.parse import urlparse, parse_qs
 import os
 import logging
 from dotenv import load_dotenv
+from notification import Notification
 
 # 配置日志
 logging.basicConfig(
@@ -22,7 +23,6 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 SIGN_URL = "https://api.weibo.cn/2/page/button"
-BARK_SERVER = os.getenv('BARK_SERVER', 'https://api.day.app')  # 设置默认值
 BARK_KEY = os.getenv('BARK_KEY')  # 全局 Bark Key
 
 # 加载账号配置
@@ -131,18 +131,6 @@ def sign_in(headers, base_params, scheme, since_id):
     data = send_request(SIGN_URL, sign_in_params, headers)
     return data
 
-def send_bark(title, content):
-    if not BARK_KEY:
-        return
-    
-    url = f"{BARK_SERVER}/{BARK_KEY}/{title}/{content}"
-    try:
-        response = requests.get(url)
-        if response.status_code != 200:
-            logger.error(f"Bark 通知发送失败: {response.status_code}")
-    except Exception as e:
-        logger.error(f"Bark 通知发送异常: {str(e)}")
-
 def process_account(account):
     account_name = account.get('name', '未命名账号')
     card_list_cookie_url = account.get('card_list_cookie_url')
@@ -177,7 +165,7 @@ def process_account(account):
     logger.info("\n"+super_topic_list)
 
     logger.info(f"{account_name} 签到结果：")
-    result_message = "\n"
+    result_message = f"\n【{account_name}】\n"
     for info in card_type_11_info:
         if info['signin_status']:
             result_message += f"    {info['title_sub']}：✅ 已签到\n"
@@ -191,7 +179,6 @@ def process_account(account):
             time.sleep(random.randint(5, 10))
     
     logger.info(result_message)
-    send_bark(f"{account_name}微博超话签到", result_message)
     return result_message
 
 if __name__ == "__main__":
@@ -199,19 +186,28 @@ if __name__ == "__main__":
     logger.info(f"共有 {len(WEIBO_ACCOUNTS)} 个账号需要处理")
     
     all_results = []
+    success_count = 0
+    failed_count = 0
+    
     for account in WEIBO_ACCOUNTS:
         try:
             result = process_account(account)
             if result:
                 all_results.append(result)
+                success_count += 1
             time.sleep(random.randint(10, 20))  # 账号之间添加随机延迟
         except Exception as e:
             logger.error(f"处理账号 {account.get('name', '未命名账号')} 时发生错误: {str(e)}")
+            failed_count += 1
             continue
     
-    # 发送总结通知
+    # 发送汇总通知
     if all_results:
-        summary = "\n=================\n".join(all_results)
-        send_bark("微博超话签到汇总", summary)
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        summary = f"⏰ 签到时间：{current_time}\n"
+        summary += f"📊 统计信息：\n    ✅ 成功：{success_count} 个账号\n    ❌ 失败：{failed_count} 个账号\n"
+        summary += "\n===================\n".join(all_results)
+        notifier = Notification()
+        notifier.send("微博超话签到任务", summary)
     
     logger.info("所有账号处理完成")
