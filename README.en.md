@@ -9,7 +9,7 @@ A containerized application for automatically completing Weibo Super Topic sign-
 - ✨ Automatic Weibo Super Topic sign-in
 - 👥 Multiple account support
 - ⏰ Customizable sign-in schedule
-- 📱 Supports [Bark](https://github.com/Finb/Bark) and [Server酱](https://sct.ftqq.com/) push notifications
+- 📱 Supports [Bark](https://github.com/Finb/Bark) and [ServerChan](https://sct.ftqq.com/) push notifications
 - 🐳 Docker container deployment support
 
 ## Quick Start
