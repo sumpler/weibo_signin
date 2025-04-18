@@ -1,14 +1,16 @@
 # 微博超话自动签到
 
-自动完成微博超话签到任务的容器应用。支持 Docker 和 Podman 部署。
+[English](./README.en.md) | [中文](./README.md)
+
+自动完成微博超话签到任务的容器应用。支持 Docker 部署。
 
 ## 功能特点
 
 - ✨ 自动签到微博超话
 - 👥 支持多账号配置
 - ⏰ 支持自定义签到时间
-- 📱 支持 [Bark](https://github.com/Finb/Bark) 推送签到结果
-- 🐳 支持 Docker/Podman 容器化部署
+- 📱 支持 [Bark](https://github.com/Finb/Bark)、[Server酱](https://sct.ftqq.com/) 推送签到结果
+- 🐳 支持 Docker 容器化部署
 
 ## 快速开始
 
@@ -47,18 +49,15 @@ docker run -d --name weibo-signin weibo-signin
 
 ```bash
 # 注意：JSON 必须写在同一行
-WEIBO_ACCOUNTS='[
-  {"name":"账号1","card_list_cookie_url":"https://api.weibo.cn/2/cardlist?xxx"},
-  {"name":"账号2","card_list_cookie_url":"https://api.weibo.cn/2/cardlist?yyy"}
-]'
+WEIBO_ACCOUNTS='[{"name":"账号1","card_list_cookie_url":"https://api.weibo.cn/2/cardlist?xxx"},{"name":"账号2","card_list_cookie_url":"https://api.weibo.cn/2/cardlist?yyy"}]'
 ```
 
 ## 获取超话签到 URL
 
 1. 使用微博轻享版 App 登录账号
 2. 进入超话列表页面
-3. 使用抓包工具（如 Charles、Fiddler）抓取请求
-4. 找到类似 `https://api.weibo.cn/2/cardlist?xxxxxxxxxxxx` 的请求 URL
+3. 使用抓包工具（如 Charles、Fiddler、Stream）抓取请求
+4. 找到类似 `https://api.weibo.cn/2/cardlist?xxxxxxxxxxxx` 的请求 URL配置在 card_list_cookie_url
 
 ## 常用命令参考
 
@@ -80,14 +79,13 @@ docker ps -a               # 查看所有容器状态
 
 ## 注意事项
 
-- 确保 `.env` 文件中的 JSON 格式配置正确且写在同一行
+- 确保 `.env` 文件中的 WEIBO_ACCOUNTS 配置 JSON 格式正确且写在同一行
 - 推送通知配置说明：
   - 需要配置 `BARK_KEY` 或 `SERVERCHAN_KEY` 中的至少一个
   - 如果同时配置两个，两个渠道都会收到推送通知
   - Bark 支持 iOS 设备推送
   - Server酱支持多个渠道推送签到结果
 - 容器将按照 `CRON_SCHEDULE` 设置的时间定时执行签到任务
-- 建议定期查看容器日志以确保签到正常进行
 
 ## 问题反馈
 
