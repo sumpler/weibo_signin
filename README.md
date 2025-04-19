@@ -70,6 +70,9 @@ docker logs weibo-signin
 # 查看定时任务日志
 docker exec weibo-signin cat /var/log/cron.log
 
+# 手动执行签到脚本
+docker exec -it weibo-signin python3 /app/main.py
+
 # 容器管理
 docker stop weibo-signin    # 停止容器
 docker start weibo-signin   # 启动容器

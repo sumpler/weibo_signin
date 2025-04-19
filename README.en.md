@@ -70,6 +70,9 @@ docker logs weibo-signin
 # View scheduled task logs
 docker exec weibo-signin cat /var/log/cron.log
 
+# Manually run the sign-in script
+docker exec -it weibo-signin python3 /app/main.py
+
 # Container management
 docker stop weibo-signin    # Stop container
 docker start weibo-signin   # Start container
