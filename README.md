@@ -9,7 +9,7 @@
 - ✨ 自动签到微博超话
 - 👥 支持多账号配置
 - ⏰ 支持自定义签到时间
-- 📱 支持 [Bark](https://github.com/Finb/Bark)、[Server酱](https://sct.ftqq.com/) 推送签到结果
+- 📱 支持 [Bark](https://github.com/Finb/Bark)、[Server酱](https://sct.ftqq.com/)、[企业微信](https://work.weixin.qq.com/) 推送签到结果
 - 🐳 支持 Docker 容器化部署
 
 ## 快速开始
@@ -28,8 +28,11 @@ cp .env.example .env
 | 参数 | 说明 | 示例 |
 |------|------|------|
 | `WEIBO_ACCOUNTS` | 账号配置（JSON 格式） | 见下方示例 |
-| `BARK_KEY` | Bark 推送密钥（可选，与 SERVERCHAN_KEY 至少配置一个） | `xxxxxxxx` |
-| `SERVERCHAN_KEY` | Server酱推送密钥（可选，与 BARK_KEY 至少配置一个） | `xxxxxxxx` |
+| `BARK_KEY` | Bark 推送密钥（可选） | `xxxxxxxx` |
+| `SERVERCHAN_KEY` | Server酱推送密钥（可选） | `xxxxxxxx` |
+| `WECOM_CORPID` | 企业微信企业ID（可选） | `wwxxxxxxxxxxxxxxxx` |
+| `WECOM_AGENTID` | 企业微信应用ID（可选） | `1000001` |
+| `WECOM_SECRET` | 企业微信应用Secret（可选） | `xxxxxxxx` |
 | `CRON_SCHEDULE` | 定时任务时间（Cron 格式） | `0 7 * * *`（每天7点） |
 | `TZ` | 时区设置（可选） | `Asia/Shanghai` |
 
@@ -84,10 +87,11 @@ docker ps -a               # 查看所有容器状态
 
 - 确保 `.env` 文件中的 WEIBO_ACCOUNTS 配置 JSON 格式正确且写在同一行
 - 推送通知配置说明：
-  - 需要配置 `BARK_KEY` 或 `SERVERCHAN_KEY` 中的至少一个
-  - 如果同时配置两个，两个渠道都会收到推送通知
+  - 需要配置 `BARK_KEY`、`SERVERCHAN_KEY` 或 `WECOM_SECRET` 中的至少一个
+  - 如果配置多个，所有已配置的渠道都会收到推送通知
   - Bark 支持 iOS 设备推送
   - Server酱支持多个渠道推送签到结果
+  - 企业微信配置需要同时设置 `WECOM_CORPID`、`WECOM_AGENTID` 和 `WECOM_SECRET`
 - 容器将按照 `CRON_SCHEDULE` 设置的时间定时执行签到任务
 
 ## 问题反馈

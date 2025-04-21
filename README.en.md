@@ -9,7 +9,7 @@ A containerized application for automatically completing Weibo Super Topic sign-
 - ✨ Automatic Weibo Super Topic sign-in
 - 👥 Multiple account support
 - ⏰ Customizable sign-in schedule
-- 📱 Supports [Bark](https://github.com/Finb/Bark) and [ServerChan](https://sct.ftqq.com/) push notifications
+- 📱 Supports [Bark](https://github.com/Finb/Bark), [ServerChan](https://sct.ftqq.com/), and [WeCom](https://work.weixin.qq.com/) push notifications
 - 🐳 Docker container deployment support
 
 ## Quick Start
@@ -28,8 +28,11 @@ Edit the `.env` file and configure the following required parameters:
 | Parameter | Description | Example |
 |-----------|-------------|---------|
 | `WEIBO_ACCOUNTS` | Account configuration (JSON format) | See example below |
-| `BARK_KEY` | Bark push key (optional, at least one of BARK_KEY or SERVERCHAN_KEY required) | `xxxxxxxx` |
-| `SERVERCHAN_KEY` | ServerChan push key (optional, at least one of BARK_KEY or SERVERCHAN_KEY required) | `xxxxxxxx` |
+| `BARK_KEY` | Bark push key (optional) | `xxxxxxxx` |
+| `SERVERCHAN_KEY` | ServerChan push key (optional) | `xxxxxxxx` |
+| `WECOM_CORPID` | WeCom Corporation ID (optional) | `wwxxxxxxxxxxxxxxxx` |
+| `WECOM_AGENTID` | WeCom Application ID (optional) | `1000001` |
+| `WECOM_SECRET` | WeCom Application Secret (optional) | `xxxxxxxx` |
 | `CRON_SCHEDULE` | Scheduled task time (Cron format) | `0 7 * * *` (7:00 AM daily) |
 | `TZ` | Timezone setting (optional) | `Asia/Shanghai` |
 
@@ -84,10 +87,11 @@ docker ps -a               # View all container statuses
 
 - Ensure the JSON format in the `.env` file's WEIBO_ACCOUNTS configuration is correct and written in a single line
 - Push notification configuration:
-  - At least one of `BARK_KEY` or `SERVERCHAN_KEY` must be configured
-  - If both are configured, notifications will be sent to both channels
+  - At least one of `BARK_KEY`, `SERVERCHAN_KEY`, or `WECOM_SECRET` must be configured
+  - If multiple channels are configured, notifications will be sent to all configured channels
   - Bark supports iOS device push notifications
   - ServerChan supports multiple channel push notifications
+  - WeCom configuration requires all three parameters: `WECOM_CORPID`, `WECOM_AGENTID`, and `WECOM_SECRET`
 - The container will execute sign-in tasks according to the time set in `CRON_SCHEDULE`
 
 ## Issue Reporting
