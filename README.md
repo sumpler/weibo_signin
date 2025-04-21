@@ -34,7 +34,6 @@ cp .env.example .env
 | `WECOM_AGENTID` | 企业微信应用ID（可选） | `1000001` |
 | `WECOM_SECRET` | 企业微信应用Secret（可选） | `xxxxxxxx` |
 | `CRON_SCHEDULE` | 定时任务时间（Cron 格式） | `0 7 * * *`（每天7点） |
-| `TZ` | 时区设置（可选） | `Asia/Shanghai` |
 
 ### 3. 运行容器
 

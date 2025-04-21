@@ -34,7 +34,6 @@ Edit the `.env` file and configure the following required parameters:
 | `WECOM_AGENTID` | WeCom Application ID (optional) | `1000001` |
 | `WECOM_SECRET` | WeCom Application Secret (optional) | `xxxxxxxx` |
 | `CRON_SCHEDULE` | Scheduled task time (Cron format) | `0 7 * * *` (7:00 AM daily) |
-| `TZ` | Timezone setting (optional) | `Asia/Shanghai` |
 
 ### 3. Run Container
 
