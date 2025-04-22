@@ -182,6 +182,7 @@ def process_account(account):
     return result_message
 
 if __name__ == "__main__":
+    time.sleep(random.randint(1, 200))
     logger.info("开始执行微博超话签到任务")
     logger.info(f"共有 {len(WEIBO_ACCOUNTS)} 个账号需要处理")
     
