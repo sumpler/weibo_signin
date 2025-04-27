@@ -55,9 +55,6 @@ except json.JSONDecodeError as e:
 except Exception as e:
     raise ValueError(f"配置错误: {str(e)}")
 
-if not BARK_KEY:
-    logger.warning("未配置 BARK_KEY，将不会发送通知")
-
 def send_request(url, params, headers):
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:
