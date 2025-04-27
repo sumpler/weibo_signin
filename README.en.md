@@ -44,7 +44,23 @@ Edit the `.env` file and configure the following required parameters:
 docker build -t weibo-signin .
 
 # Run container
-docker run -d --name weibo-signin weibo-signin
+docker run -d --name weibo-signin -v $(pwd)/.env:/app/.env weibo-signin
+```
+
+#### Using Docker Compose (Recommended)
+
+```bash
+# Build and start service
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop service
+docker-compose down
+
+# Restart service
+docker-compose restart
 ```
 
 ## Multiple Account Configuration Example
@@ -75,12 +91,41 @@ docker exec weibo-signin cat /var/log/cron.log
 # Manually run the sign-in script
 docker exec -it weibo-signin python3 /app/main.py
 
+# Test notification channels
+docker exec -it weibo-signin python3 /app/tests/test_notifications.py
+
 # Container management
 docker stop weibo-signin    # Stop container
 docker start weibo-signin   # Start container
 docker rm weibo-signin     # Remove container
 docker ps -a               # View all container statuses
 ```
+
+### Notification Channel Testing
+
+After running the test script, it will display the test results for each notification channel:
+
+```bash
+Starting notification channel tests...
+--------------------------------------------------
+Channel: Bark
+Status: Success
+Message: Push successful
+--------------------------------------------------
+Channel: ServerChan
+Status: Not Configured
+Message: SERVERCHAN_KEY not set
+--------------------------------------------------
+Channel: WeCom
+Status: Success
+Message: Push successful
+--------------------------------------------------
+```
+
+Test Result Explanation:
+- Success: The notification channel is correctly configured and can push notifications
+- Failed: The notification channel configuration might be incorrect or the service is experiencing issues
+- Not Configured: Required parameters for this notification channel are not set
 
 ## Important Notes
 

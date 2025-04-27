@@ -44,7 +44,23 @@ cp .env.example .env
 docker build -t weibo-signin .
 
 # 运行容器
-docker run -d --name weibo-signin weibo-signin
+docker run -d --name weibo-signin -v $(pwd)/.env:/app/.env weibo-signin
+```
+
+#### 使用 Docker Compose（推荐）
+
+```bash
+# 构建并启动服务
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+
+# 重启服务
+docker-compose restart
 ```
 
 ## 多账号配置示例
@@ -75,12 +91,41 @@ docker exec weibo-signin cat /var/log/cron.log
 # 手动执行签到脚本
 docker exec -it weibo-signin python3 /app/main.py
 
+# 测试通知渠道
+docker exec -it weibo-signin python3 /app/tests/test_notifications.py
+
 # 容器管理
 docker stop weibo-signin    # 停止容器
 docker start weibo-signin   # 启动容器
 docker rm weibo-signin     # 删除容器
 docker ps -a               # 查看所有容器状态
 ```
+
+### 通知渠道测试
+
+执行测试脚本后，将显示每个通知渠道的测试结果：
+
+```bash
+开始测试通知渠道...
+--------------------------------------------------
+渠道: Bark
+状态: 成功
+信息: 推送成功
+--------------------------------------------------
+渠道: Server酱
+状态: 未配置
+信息: SERVERCHAN_KEY 未设置
+--------------------------------------------------
+渠道: 企业微信
+状态: 成功
+信息: 推送成功
+--------------------------------------------------
+```
+
+测试结果说明：
+- 成功：通知渠道配置正确且可以正常推送
+- 失败：通知渠道配置可能有误或服务异常
+- 未配置：未设置该通知渠道的必要参数
 
 ## 注意事项
 
