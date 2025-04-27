@@ -17,24 +17,25 @@ RUN apt-get update && apt-get install -y \
     && ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
-# 复制 .env 文件
-COPY .env .
-RUN set -a && . ./.env && set +a
-
 # 复制依赖文件
 COPY requirements.txt .
 
 # 安装依赖
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 复制项目文件
+# 复制项目文件，排除.env
 COPY . .
+RUN rm -f .env
 
 # 创建日志文件
 RUN touch /var/log/cron.log
 
 # 创建 cron 环境设置脚本
 RUN echo '#!/bin/sh\n\
+if [ ! -f /app/.env ]; then\n\
+    echo "Error: .env file not found!"\n\
+    exit 1\n\
+fi\n\
 set -a\n\
 . /app/.env\n\
 set +a\n\
@@ -43,6 +44,10 @@ RUN chmod +x /app/cron_task.sh
 
 # 创建启动脚本
 RUN echo '#!/bin/sh\n\
+if [ ! -f /app/.env ]; then\n\
+    echo "Error: .env file not found!"\n\
+    exit 1\n\
+fi\n\
 set -a\n\
 . /app/.env\n\
 set +a\n\
